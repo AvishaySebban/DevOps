@@ -1,0 +1,12 @@
+03/01/15 12:00:01 The last script execution time was 1800 seconds ago
+03/01/15 12:00:01 Lock file was created: /opt/opengrok/bin/runCloneOrUpdateDmsp.sh.lck
+03/01/15 12:00:01 --------------------------------------------------------------------
+2015-03-01 12:00:01  [159 runCloneOrUpdateDmsp.sh] Preparing dmsp
+
+
+2015-03-01 12:00:01   [99 runCloneOrUpdateDmsp.sh] Getting Git repositories for dmsp
+2015-03-01 12:00:01  [105 runCloneOrUpdateDmsp.sh] Processing dmsp-admin-service
+2015-03-01 12:00:01  [109 runCloneOrUpdateDmsp.sh] Checking if dmsp-admin-service exists
+2015-03-01 12:00:02  [116 runCloneOrUpdateDmsp.sh] Cloning dmsp-admin-service
+2015-03-01 12:00:02  [121 runCloneOrUpdateDmsp.sh] ERROR: Failed cloning dmsp-admin-service
+

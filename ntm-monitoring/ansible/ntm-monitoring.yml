@@ -1,0 +1,63 @@
+---
+- hosts: ntmServers
+  gather_facts: no
+  vars:
+    monitoring_group: monitoring
+    monitoring_user: ntmmonitoring
+    monitoring_pkg: "{{ APP_BASE_NAME }}/tmp/ntm-monitoring.zip"
+    monitoring_home: /opt/ntm-monitoring
+    monitoring_log_dir: /var/log/ntm-monitoring
+    
+   
+  tasks:
+ 
+  - name: install the latest version of epel-release
+    yum: name=epel-release state=latest 
+
+  - name: install the latest version of python-psutil
+    yum: name=python-psutil state=latest 
+
+  - name: Create monitoring group on remote server
+    group: name={{monitoring_group}} state=present
+
+  - name: Create user profile on remote server
+    user: name={{monitoring_user}} state=present shell=/bin/bash group={{monitoring_group}} append=yes 
+    
+  - name: Delete previous home dir
+    file: path={{monitoring_home}} state=absent
+    tags:
+      - sourceOnly
+           
+  - name: unarchive ntm-monitoring on remote
+    unarchive: src={{monitoring_pkg}} dest=/opt copy=yes
+    tags:
+      - sourceOnly
+   
+  - name: Change HOME_DIR files owner
+    file: path={{monitoring_home}} owner={{monitoring_user}} group={{monitoring_group}} mode=0755 state=directory recurse=yes
+    tags:
+      - sourceOnly
+  
+  - name: Create logs directory
+    file: path={{monitoring_log_dir}} owner={{monitoring_user}} group={{monitoring_group}} mode=0755 state=directory recurse=yes
+    tags:
+      - sourceOnly
+    
+  - name: Add to PYTHONPATH bashrc
+    lineinfile: 
+      line="export PYTHONPATH=$PYTHONPATH:{{monitoring_home}}/lib:{{monitoring_home}}/conf"
+      dest=/home/{{monitoring_user}}/.bashrc 
+      insertafter='EOF'
+      
+  - name: Creates weekly backup cronjob
+    cron: minute="*/5" hour="*" weekday="*"
+          name="ntm_monitoring"
+          cron_file="ntm_monitoring_job"
+          user="{{monitoring_user}}"
+          job="{{monitoring_home}}/bin/exeCron.sh > {{monitoring_home}}/bin/exeCron.log 2>&1"
+  
+  - name: Deploy ntm-monitoring logrotate file
+    copy: src=files/ntm-monitoring.logrotate dest=/etc/logrotate.d/ntm-monitoring
+    
+  - name: Deploy ntm-monitoring sudoers conf
+    copy: src=files/ntm-monitoring.sudoers dest=/etc/sudoers.d/ntm-monitoring
